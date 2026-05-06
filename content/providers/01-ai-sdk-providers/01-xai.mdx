@@ -1198,3 +1198,90 @@ and `resolution` just like text-to-video.
 <Note>
   You can also pass any available provider model ID as a string if needed.
 </Note>
+
+## Transcription Models
+
+You can create models that call the [xAI speech-to-text REST API](https://docs.x.ai/developers/model-capabilities/audio/speech-to-text)
+using the `.transcription()` factory method.
+
+xAI REST transcription does not expose multiple model ids, so use `xai.transcription()`.
+
+```ts
+const model = xai.transcription();
+```
+
+You can transcribe audio using the `experimental_transcribe` function:
+
+```ts
+import { xai } from '@ai-sdk/xai';
+import { experimental_transcribe as transcribe } from 'ai';
+import { readFile } from 'fs/promises';
+
+const result = await transcribe({
+  model: xai.transcription(),
+  audio: await readFile('audio.mp3'),
+});
+```
+
+### Transcription Provider Options
+
+You can pass xAI-specific speech-to-text options using `providerOptions.xai`.
+For example, enable text formatting and speaker diarization:
+
+```ts highlight="8-14"
+import { xai, type XaiTranscriptionModelOptions } from '@ai-sdk/xai';
+import { experimental_transcribe as transcribe } from 'ai';
+import { readFile } from 'fs/promises';
+
+const result = await transcribe({
+  model: xai.transcription(),
+  audio: await readFile('meeting.mp3'),
+  providerOptions: {
+    xai: {
+      language: 'en',
+      format: true,
+      diarize: true,
+    } satisfies XaiTranscriptionModelOptions,
+  },
+});
+```
+
+The following provider options are available:
+
+- **audioFormat** _'pcm' | 'mulaw' | 'alaw'_
+
+  Format hint for raw/headerless audio. Do not set this for container formats
+  such as MP3, WAV, or FLAC.
+
+- **sampleRate** _8000 | 16000 | 22050 | 24000 | 44100 | 48000_
+
+  Sample rate in Hz. Required by xAI for raw audio formats.
+
+- **language** _string_
+
+  Language code used with `format: true` for text formatting.
+
+- **format** _boolean_
+
+  Enables inverse text normalization, such as formatting spoken numbers and
+  currencies.
+
+- **multichannel** _boolean_
+
+  Transcribes each audio channel independently and returns provider-specific
+  channel metadata.
+
+- **channels** _number_
+
+  Number of audio channels. Supported values are 2 through 8.
+
+- **diarize** _boolean_
+
+  Enables speaker diarization. Speaker labels are preserved in
+  `providerMetadata.xai.words`.
+
+### Transcription Model Capabilities
+
+| Model     | Word Timestamps    | Diarization        | Multichannel       |
+| --------- | ------------------ | ------------------ | ------------------ |
+| `default` | <Check size={18} /> | <Check size={18} /> | <Check size={18} /> |

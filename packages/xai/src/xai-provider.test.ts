@@ -4,10 +4,12 @@ import { loadApiKey } from '@ai-sdk/provider-utils';
 import { XaiChatLanguageModel } from './xai-chat-language-model';
 import { XaiImageModel } from './xai-image-model';
 import { XaiVideoModel } from './xai-video-model';
+import { XaiTranscriptionModel } from './xai-transcription-model';
 
 const XaiChatLanguageModelMock = XaiChatLanguageModel as unknown as Mock;
 const XaiImageModelMock = XaiImageModel as unknown as Mock;
 const XaiVideoModelMock = XaiVideoModel as unknown as Mock;
+const XaiTranscriptionModelMock = XaiTranscriptionModel as unknown as Mock;
 
 vi.mock('./xai-chat-language-model', () => ({
   XaiChatLanguageModel: vi.fn(),
@@ -19,6 +21,10 @@ vi.mock('./xai-image-model', () => ({
 
 vi.mock('./xai-video-model', () => ({
   XaiVideoModel: vi.fn(),
+}));
+
+vi.mock('./xai-transcription-model', () => ({
+  XaiTranscriptionModel: vi.fn(),
 }));
 
 vi.mock('@ai-sdk/provider-utils', async () => {
@@ -213,6 +219,50 @@ describe('xAIProvider', () => {
       expect(XaiVideoModelMock).toHaveBeenCalledOnce();
       const constructorCall = XaiVideoModelMock.mock.calls[0];
       expect(constructorCall[0]).toBe(modelId);
+    });
+  });
+
+  describe('transcriptionModel', () => {
+    it('should construct a transcription model with correct configuration', () => {
+      const provider = createXai();
+
+      provider.transcription();
+
+      expect(XaiTranscriptionModelMock).toHaveBeenCalledOnce();
+
+      const constructorCall = XaiTranscriptionModelMock.mock.calls[0];
+      expect(constructorCall[0]).toBe('default');
+
+      const config = constructorCall[1];
+      expect(config.provider).toBe('xai.transcription');
+      expect(config.baseURL).toBe('https://api.x.ai/v1');
+    });
+
+    it('should ignore the registry model id for transcription models', () => {
+      const provider = createXai();
+
+      provider.transcriptionModel('ignored-model-id');
+
+      expect(XaiTranscriptionModelMock).toHaveBeenCalledOnce();
+      const constructorCall = XaiTranscriptionModelMock.mock.calls[0];
+      expect(constructorCall[0]).toBe('default');
+    });
+
+    it('should pass custom headers to transcription model', () => {
+      const customHeaders = { 'Custom-Header': 'test-value' };
+      const provider = createXai({ headers: customHeaders });
+
+      provider.transcription();
+
+      const constructorCall = XaiTranscriptionModelMock.mock.calls[0];
+      const config = constructorCall[1];
+      const headers = config.headers();
+
+      expect(headers).toMatchObject({
+        authorization: 'Bearer mock-api-key',
+        'custom-header': 'test-value',
+        'user-agent': 'ai-sdk/xai/0.0.0-test',
+      });
     });
   });
 });

@@ -4,6 +4,7 @@ import {
   type LanguageModelV3,
   type ProviderV3,
   type Experimental_VideoModelV3,
+  type TranscriptionModelV3,
 } from '@ai-sdk/provider';
 import {
   generateId,
@@ -22,6 +23,7 @@ import { xaiTools } from './tool';
 import { VERSION } from './version';
 import { XaiVideoModel } from './xai-video-model';
 import type { XaiVideoModelId } from './xai-video-settings';
+import { XaiTranscriptionModel } from './xai-transcription-model';
 
 export interface XaiProvider extends ProviderV3 {
   /**
@@ -63,6 +65,16 @@ export interface XaiProvider extends ProviderV3 {
    * Creates an Xai video model for video generation.
    */
   videoModel(modelId: XaiVideoModelId): Experimental_VideoModelV3;
+
+  /**
+   * Creates an xAI transcription model.
+   */
+  transcription(): TranscriptionModelV3;
+
+  /**
+   * Creates an xAI transcription model.
+   */
+  transcriptionModel(modelId: string): TranscriptionModelV3;
 
   /**
    * Server-side agentic tools for use with the responses API.
@@ -153,6 +165,15 @@ export function createXai(options: XaiProviderSettings = {}): XaiProvider {
     });
   };
 
+  const createTranscriptionModel = () => {
+    return new XaiTranscriptionModel('default', {
+      provider: 'xai.transcription',
+      baseURL,
+      headers: getHeaders,
+      fetch: options.fetch,
+    });
+  };
+
   const provider = (modelId: XaiChatModelId) =>
     createChatLanguageModel(modelId);
 
@@ -168,6 +189,8 @@ export function createXai(options: XaiProviderSettings = {}): XaiProvider {
   provider.image = createImageModel;
   provider.videoModel = createVideoModel;
   provider.video = createVideoModel;
+  provider.transcriptionModel = createTranscriptionModel;
+  provider.transcription = createTranscriptionModel;
   provider.tools = xaiTools;
 
   return provider;

@@ -1,7 +1,8 @@
 # AI SDK - xAI Grok Provider
 
 The **[xAI Grok provider](https://ai-sdk.dev/providers/ai-sdk-providers/xai)** for the [AI SDK](https://ai-sdk.dev/docs)
-contains language model support for the xAI chat and completion APIs.
+contains language model support for the xAI chat and completion APIs, plus
+image, video, and transcription model support.
 
 > **Deploying to Vercel?** With Vercel's AI Gateway you can access xAI (and hundreds of models from other providers) — no additional packages, API keys, or extra cost. [Get started with AI Gateway](https://vercel.com/ai-gateway).
 
